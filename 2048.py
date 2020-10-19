@@ -13,11 +13,19 @@ import numpy as np
 import colors as c
 #Graphical interface
 import tkinter as tk
+#I/O
+import os
 
 
 
 class Game(tk.Frame):
     def __init__(self):
+        #Check if a high_score.txt file exists, otherwise create it
+        if not os.path.exists('high_score.txt'):
+            fin = open('high_score.txt','w')
+            fin.write("0")
+            fin.close()
+        #Main panel    
         tk.Frame.__init__(self)
         self.grid()
         self.master.title("2048")
@@ -39,6 +47,15 @@ class Game(tk.Frame):
         self.master.bind("<Down>", self.down)
         
         self.mainloop()
+    
+    #Update high score
+    def update_high_score(self):
+        if self.score > int(self.high_score):
+           fout = open('high_score.txt','w')
+           fout.write(str(self.score))
+           fout.close()
+        
+
         
     def make_GUI(self):
         #make grid
@@ -61,7 +78,12 @@ class Game(tk.Frame):
     
         #make score header
         score_frame = tk.Frame(self)
-        score_frame.place(relx = 0.5, 
+        score_frame.place(relx = 0.2, 
+                          y = 45, 
+                          anchor = "center"
+                          )
+        high_score_frame = tk.Frame(self)
+        high_score_frame.place(relx = 0.75, 
                           y = 45, 
                           anchor = "center"
                           )
@@ -69,11 +91,23 @@ class Game(tk.Frame):
             score_frame,
             text = "Score",
             font = c.SCORE_LABEL_FONT
-            ).grid(row = 0)
+            ).grid(row = 0, column = 0)
         self.score_label = tk.Label(score_frame, text='0',font = c.SCORE_FONT)
         self.score_label.grid(row=1)
         
+        tk.Label(
+            high_score_frame,
+            text = "High Score",
+            font = c.SCORE_LABEL_FONT
+            ).grid(row = 0, column = 0)
+        #read high score from file
+        with open('high_score.txt','r') as hs:
+            self.high_score = hs.read()
+        self.high_score_label = tk.Label(high_score_frame, text=self.high_score,font = c.SCORE_FONT)
+        self.high_score_label.grid(row=1)
+        
     def start_game(self):
+            
         #create a matrix of zeros
         self.matrix = [[0] * 4 for _ in range(4)]
         
@@ -251,6 +285,8 @@ class Game(tk.Frame):
                      fg = c.GAME_OVER_FONT_COLOR,
                      font = c.GAME_OVER_FONT
                      ).pack()
+            self.update_high_score()
+            
         elif not any (0 in row for row in self.matrix) and not self.horizontal_move_exists() and not self.vertical_move_exists():
             game_over_frame = tk.Frame(self.main_grid,
                                        borderwidth  = 2)
@@ -263,7 +299,8 @@ class Game(tk.Frame):
                      bg = c.LOSER_BG,
                      fg = c.GAME_OVER_FONT_COLOR,
                      font = c.GAME_OVER_FONT
-                     ).pack()     
+                     ).pack()
+            self.update_high_score()
         
 def main():
     Game()
