@@ -8,7 +8,7 @@ authors = [
     {name = "mgomes", email = ""}
 ]
 dependencies = [
-    "numpy>=1.24.0",
+    "numpy==2.5.3",
 ]
 
 [build-system]
